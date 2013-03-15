@@ -2,6 +2,8 @@
 
 This project shows how to use **angular** with **jquery mobile** to build **structured** and **tested** cross platform **HTML5** single page applications!
 
+The main frameworks are [angular](angularjs.org), [jquery mobile](http://view.jquerymobile.com/1.3.0/), and most importantly the [adapter](https://github.com/tigbro/jquery-mobile-angular-adapter).
+
 The [grunt workflow](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js)
 
 - [watches](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L28) code for any changes and reloads the page
