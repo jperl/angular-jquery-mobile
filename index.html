@@ -1,152 +1,56 @@
 <!DOCTYPE html>
 <html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <script src="scripts/libraries.js"></script>
+    <link rel="stylesheet" href="styles/main.css">
+</head>
 
-  <head>
-    <meta charset='utf-8' />
-    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="Angular-jquery-mobile : A cross-platform todo example with angular, jquery mobile, and tested with testacular" />
+<body ng-controller="TodoController" ng-app="app">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-
-    <title>Angular-jquery-mobile</title>
-  </head>
-
-  <body>
-
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/jperl/angular-jquery-mobile">View on GitHub</a>
-
-          <h1 id="project_title">Angular-jquery-mobile</h1>
-          <h2 id="project_tagline">A cross-platform todo example with angular, jquery mobile, and tested with testacular</h2>
-
-            <section id="downloads">
-              <a class="zip_download_link" href="https://github.com/jperl/angular-jquery-mobile/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/jperl/angular-jquery-mobile/tarball/master">Download this project as a tar.gz file</a>
-            </section>
-        </header>
+<!-- Views -->
+<div id="mainView" data-role="page" ngm-swipeleft="setPage('aboutView')">
+    <div data-role="header">
+        <h1>List of Todos</h1>
+        <button ngm-vclick="save()"><i class="icon-save" style="font-size: 16px"></i></button>
+        <a ngm-vclick="setPage('aboutView')" data-role="button">About</a>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
+    <div data-role="content">
+        <div data-role="fieldcontain">
+            <form ng-submit="add()" data-ajax="false">
+                <div class="ui-controlgroup-controls">
+                    <input type="text" ng-model="$parent.inputText" placeholder="enter your todo here">
+                    <button type="submit" data-icon="add">Add</button>
+                </div>
+            </form>
+        </div>
+        <div data-role="controlgroup">
+            <fieldset ng-repeat="todo in todos | paged:'pager':5">
+                <div todo=""></div>
+            </fieldset>
+            <div ngm-if="pager.hasMore">
+                <a href="#" ngm-vclick="pager.loadMore()" data-role="button">Load more</a>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="aboutView" data-role="page" ngm-swiperight="back()">
+    <div data-role="header">
         <h1>About</h1>
-
-<p>This project shows how to use <strong>angular</strong> with <strong>jquery mobile</strong> to build <strong>structured</strong> and <strong>tested</strong> cross platform <strong>HTML5</strong> single page applications!</p>
-
-<p>The main frameworks are <a href="angularjs.org">angular</a>, <a href="http://view.jquerymobile.com/1.3.0/">jquery mobile</a>, and most importantly the <a href="https://github.com/tigbro/jquery-mobile-angular-adapter">adapter</a>.</p>
-
-<p>The <a href="https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js">grunt workflow</a></p>
-
-<ul>
-<li>
-<a href="https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L28">watches</a> code for any changes and reloads the page</li>
-<li>
-<a href="https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L15">compiles</a> less into a css file</li>
-<li>
-<a href="https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L78">lints</a> your code against JSHint rules</li>
-<li>
-<a href="https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L127">preprocesses</a> an indexTemplate and builds the index.html so
-
-<ul>
-<li>jquery mobile views can be seperated and <a href="https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L17">inserted</a> into the index page</li>
-<li>angular templates can be <a href="https://github.com/jperl/angular-jquery-mobile/tree/master/app/templates">seperated</a>, <a href="https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L25">processed</a> then <a href="https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L28">referenced</a> from the index page</li>
-<li>development <a href="https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L32">mocks</a> can be inserted</li>
-</ul>
-</li>
-<li>
-<a href="#build">builds</a> your code</li>
-<li>
-<a href="#testing">runs unit tests</a> with testacular (and soon E2E tests with cucumber-js) to test  your code</li>
-</ul><h1>Getting Started</h1>
-
-<p>Need to have <a href="http://nodejs.org/">node</a>, <a href="https://github.com/twitter/bower#installing-bower">bower</a> and <a href="http://gruntjs.com/getting-started#installing-the-cli">grunt</a> installed.</p>
-
-<p>Clone <code>git clone git@github.com:jperl/angular-jquery-mobile.git</code></p>
-
-<p>Install node and bower packages</p>
-
-<pre><code>sudo -s
-npm install
-bower install
-bower install --dev
-</code></pre>
-
-<p>Run the server <code>grunt server</code></p>
-
-<h1>Testing</h1>
-
-<p>All testing is ran on <a href="http://testacular.github.com">testacular</a>.</p>
-
-<p>Unit tests use <a href="http://pivotal.github.com/jasmine/">Jasmine</a>.</p>
-
-<p>TODO: E2E tests use <a href="https://github.com/tigbro/uitest.js">uitest</a> and <a href="https://github.com/cucumber/cucumber-js">cucumber-js</a>.</p>
-
-<h3>Strategy</h3>
-
-<table>
-<tr>
-<th>Type</th>
-<th align="center">Strategy</th>
-<th align="center">Example</th>
-</tr>
-<tr>
-<td>Service</td>
-<td align="center">Unit Test</td>
-<td align="center"><a href="https://github.com/jperl/angular-jquery-mobile/blob/master/test/unit/todoStorageSpec.js">example</a></td>
-</tr>
-<tr>
-<td>Directive</td>
-<td align="center">Unit Test</td>
-<td align="center"><a href="https://github.com/jperl/angular-jquery-mobile/blob/master/test/unit/todoSpec.js">example</a></td>
-</tr>
-</table><h5>Run tests once on PhantomJS</h5>
-
-<p><code>grunt ci</code></p>
-
-<h5>Run tests on other browsers</h5>
-
-<p>Run the server <code>grunt server:test</code> in one terminal, and run the tests in another terminal with the commands below.</p>
-
-<table>
-<tr>
-<th>Type</th>
-<th align="center">Run Tests</th>
-</tr>
-<tr>
-<td>Unit Tests</td>
-<td align="center"><code>grunt testacularRun:unit</code></td>
-</tr>
-</table><p>Point as many browsers you want to test (mobile devices, other computers) to the testacular server url.</p>
-
-<h5>View test specifics</h5>
-
-<p>Unit Tests  </p>
-
-<p><code>grunt server:test</code> then in the unit testacular window choose <a href="http://localhost:9876/debug.html">debug</a> at the top.</p>
-
-<h1>Build</h1>
-
-<p><code>grunt build</code></p>
-
-<p>You can serve the built with <code>grunt server:dist</code></p>
-
-<h1>License</h1>
-
-<p>MIT License</p>
-      </section>
+        <button ngm-vclick="setPage('mainView')" data-rel="back">Back</button>
     </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Angular-jquery-mobile maintained by <a href="https://github.com/jperl">jperl</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
+    <div data-role="content">
+        Hope this was helpful.
     </div>
+</div>
 
-    
+<script src="scripts/main.js"></script>
 
-  </body>
+
+
+</body>
 </html>
