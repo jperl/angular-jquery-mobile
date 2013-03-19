@@ -35434,7 +35434,7 @@ var styleDirective = valueFn({
 
 })(window, document);
 angular.element(document).find('head').append('<style type="text/css">@charset "UTF-8";[ng\\:cloak],[ng-cloak],[data-ng-cloak],[x-ng-cloak],.ng-cloak,.x-ng-cloak{display:none;}ng\\:form{display:block;}</style>');
-/*! jquery-mobile-angular-adapter - v1.2.1-SNAPSHOT - 2013-03-14
+/*! jquery-mobile-angular-adapter - v1.2.1-SNAPSHOT - 2013-03-16
 * https://github.com/tigbro/jquery-mobile-angular-adapter
 * Copyright (c) 2013 Tobias Bosch; Licensed MIT */
 (function(factory) {
@@ -35558,6 +35558,14 @@ factory(window.jQuery, window.angular);
         // recreate
         this._create();
     };
+    // rangeslider enable/disable throws
+    // TypeError: Function.prototype.apply: Arguments list has wrong type
+    $.mobile.rangeslider.prototype._setOption = function( options ) {
+        // Old: this._superApply(options);
+        $.Widget.prototype._setOption.apply(this, arguments);
+        this.refresh();
+    };
+
 })(window.jQuery);
 /**
  * Helper that introduces the concept of precompilation: Preprocess the dom before
@@ -35584,7 +35592,7 @@ factory(window.jQuery, window.angular);
             $get: ["$injector", function($injector) {
                 return function(element) {
                     var i;
-                    for (i=0; i<element.length; i++) {
+                    for (i=0; i<handlers.length; i++) {
                         element = $injector.invoke(handlers[i], this, {element: element});
                     }
                     return element;
@@ -35743,7 +35751,7 @@ factory(window.jQuery, window.angular);
     ng.config(["$precompileProvider", function($precompile) {
         $precompile.addHandler(["jqmNgWidget", "element", precompilePageAndWidgets]);
     }]);
-    ng.run(['$rootScope', '$compile', 'jqmNgWidget', initExternalJqmPagesOnLoad]);
+    ng.run(['$rootScope', '$compile', 'jqmNgWidget', '$browser', initExternalJqmPagesOnLoad]);
 
     ng.directive('ngmPage', ["jqmNgWidget", "$timeout", ngmPageDirective]);
 
@@ -35812,7 +35820,7 @@ factory(window.jQuery, window.angular);
         // if the element is not connected with the document element,
         // the enhancements of jquery mobile do not work (uses event listeners for the document).
         // So temporarily connect it...
-        connectToDocument(element[0], markPagesAndWidgetsAndApplyNonWidgetMarkup);
+        connectToDocumentAndPage(jqmNgWidget, element[0], markPagesAndWidgetsAndApplyNonWidgetMarkup);
 
         // If the element wrapped itself into a new element,
         // return the element that is under the same original parent
@@ -35846,7 +35854,8 @@ factory(window.jQuery, window.angular);
         }
     }
 
-    function connectToDocument(node, callback) {
+    var emptyPage;
+    function connectToDocumentAndPage(jqmNgWidget, node, callback) {
         if (!node.parentNode) {
             return callback();
         }
@@ -35856,13 +35865,21 @@ factory(window.jQuery, window.angular);
         }
         var oldParentNode = node.parentNode;
         if (oldParentNode !== document) {
-            document.documentElement.appendChild(node);
+            if (!emptyPage) {
+                emptyPage = $('<div data-role="page"></div>');
+                createPagesWithoutPageCreateEvent(jqmNgWidget, emptyPage);
+            }
+            $("body").append(emptyPage);
+            emptyPage.append(node);
         }
         try {
             return callback();
         } finally {
             if (oldParentNode !== document) {
                 oldParentNode.appendChild(node);
+                // Don't use remove, as this would destroy the page widget also,
+                // but we want to cache it!
+                emptyPage[0].parentNode.removeChild(emptyPage[0]);
             }
         }
     }
@@ -35909,7 +35926,7 @@ factory(window.jQuery, window.angular);
     }
 
     // If jqm loads a page from an external source, angular needs to compile it too!
-    function initExternalJqmPagesOnLoad($rootScope, $compile, jqmNgWidget) {
+    function initExternalJqmPagesOnLoad($rootScope, $compile, jqmNgWidget, $browser) {
         jqmNgWidget.patchJq('page', function () {
             if (!jqmNgWidget.preventJqmWidgetCreation() && !this.data($.mobile.page.prototype.widgetFullName)) {
                 if (this.attr("data-" + $.mobile.ns + "external-page")) {
@@ -35920,21 +35937,24 @@ factory(window.jQuery, window.angular);
             return $.fn.orig.page.apply(this, arguments);
         });
 
-        var base = $.mobile.base.element.attr("href");
         function correctRelativeLinks(page) {
             // correct the relative links in this page relative
             // to the page url.
-            // Jqm does this when a link is clicked (using link.attr("href"),
-            // but we want to use link.prop("href")
-            var url = page.jqmData( "url" );
-            if ( !url || !$.mobile.path.isPath( url ) ) {
-                url = base;
-            }
-            var pageUrl = $.mobile.path.makeUrlAbsolute( url, base);
-            page.find( "a:not([rel='external'], [target])" ).each(function() {
+            // For external links, jqm already does this when
+            // the page is loaded. However, normal links
+            // are adjusted in jqm via their default jqm click handler.
+            // As we use our own default click handler (see ngmRouting.js),
+            // we need to adjust normal links ourselves.
+            var pageUrl = page.jqmData( "url" ),
+                pagePath = $.mobile.path.get(pageUrl),
+                ABSOULTE_URL_RE = /^(\w+:|#|\/)/;
+
+            page.find( "a" ).each(function() {
                 var $this = $(this),
-                    thisUrl = $this.attr( 'href' );
-                $this.attr('href', $.mobile.path.makeUrlAbsolute(thisUrl, pageUrl));
+                    thisUrl = $this.attr( "href" );
+                if ( !ABSOULTE_URL_RE.test( thisUrl ) ) {
+                    $this.attr( "href", pagePath + thisUrl );
+                }
             });
         }
     }
@@ -35942,7 +35962,7 @@ factory(window.jQuery, window.angular);
 
 
 })($, angular);
-(function($,angular) {
+(function($, angular) {
     var ng = angular.module('ng'),
         execFlags = {};
 
@@ -35955,23 +35975,54 @@ factory(window.jQuery, window.angular);
 
     enableDomManipDelegate("after");
     enableDomManipDelegate("before");
+    enableDomManipDelegate("css", function(attrName, value) {
+        // if the element is shown/hidden, delegate this to the wrapper
+        // (see ng-show). Only catch the setter!
+        return attrName === 'display' && arguments.length >= 2;
+    });
     enableDomManipDelegate("remove");
 
     return;
 
     // --------------
 
+    /**
+     * @ngdoc object
+     * @name ng.jqmNgWidgetProvider
+     *
+     * @description
+     * Helper service for creating a custom directive for a jqm widget.
+     * The provider contains a method for registering widgets,
+     * and the service provides methods for refreshing the widget.
+     */
     function jqmNgWidgetProvider($compileProvider) {
         var widgetDefs = {},
-            widgetInstances = {};
+        widgetInstances = {};
 
         var provider = {
+            /**
+             * @name ng.jgmNgWidgetProvider#widget
+             * @methodOf ng.jgmNgWidgetProvider
+             *
+             * @description
+             * Registers a directive for a jqm widget.
+             *
+             * @param {string} widgetName jqm widget name, e.g. 'dialog'.
+             * @param {function()} directive injectable function, that returns an object with the following properties:
+             * <ul>
+             * <li>{function(element)} precompile Optional will be called before angular compiles a html snippet.</li>
+             * <li>{function(element)} preLink Optional will be called just like normal directives `preLink` function.
+             * <li>{function(element)} link will be called just like normal directives `link`/`postLink` function.
+             */
             widget: function(name, spec) {
-                if (arguments.length===1) {
+                if (arguments.length === 1) {
                     return widgetDefs[name];
                 }
+                var override = !! widgetDefs[name];
                 widgetDefs[name] = spec;
-                addJqmNgWidgetDirective(name, $compileProvider);
+                if (!override) {
+                    addJqmNgWidgetDirective(name, $compileProvider);
+                }
             },
             $get: ["$injector", function($injector) {
                 return {
@@ -36007,7 +36058,7 @@ factory(window.jQuery, window.angular);
     }
 
     function calcDirectiveName(widgetName) {
-        return "ngm"+widgetName[0].toUpperCase()+widgetName.substring(1);
+        return "ngm" + widgetName[0].toUpperCase() + widgetName.substring(1);
     }
 
     function addJqmNgWidgetDirective(widgetName, $compileProvider) {
@@ -36017,20 +36068,20 @@ factory(window.jQuery, window.angular);
 
         function directiveImpl(jqmNgWidget) {
             return {
-                restrict:'A',
+                restrict: 'A',
                 // after the normal angular widgets like input, ngModel, ...
-                priority:0,
-                require:['?ngModel', '?select'],
-                compile:function (tElement, tAttrs) {
+                priority: 0,
+                require: ['?ngModel', '?select'],
+                compile: function(tElement, tAttrs) {
                     var initArgs = JSON.parse(tAttrs[directiveName]);
                     return {
-                        pre:function (scope, iElement, iAttrs, ctrls) {
+                        pre: function(scope, iElement, iAttrs, ctrls) {
                             var widgetSpec = jqmNgWidget.lookup(widgetName);
                             if (widgetSpec.preLink) {
                                 widgetSpec.preLink(widgetName, scope, iElement, iAttrs, ctrls[0], ctrls[1]);
                             }
                         },
-                        post:function (scope, iElement, iAttrs, ctrls) {
+                        post: function(scope, iElement, iAttrs, ctrls) {
                             var widgetSpec = jqmNgWidget.lookup(widgetName);
                             widgetSpec.link(widgetName, scope, iElement, iAttrs, ctrls[0], ctrls[1]);
                         }
@@ -36041,8 +36092,8 @@ factory(window.jQuery, window.angular);
     }
 
     function patchJqmWidget(widgetName, widgetInstance) {
-        var widgetAttr = "data-ngm-"+widgetName;
-        patchJq(widgetName, function () {
+        var widgetAttr = "data-ngm-" + widgetName;
+        patchJq(widgetName, function() {
             if (markJqmWidgetCreation()) {
                 var args = Array.prototype.slice.call(arguments);
                 var self = this;
@@ -36088,45 +36139,46 @@ factory(window.jQuery, window.angular);
     function delegateDomManipToWrapper(origCreate, element) {
         var oldParents = Array.prototype.slice.call(element.parents()),
             newParents,
-            i,oldParent, newParent;
+            i, oldParent, newParent;
 
         oldParents.unshift(element[0]);
         origCreate();
         newParents = Array.prototype.slice.call(element.parents());
         newParents.unshift(element[0]);
 
-        for (i=0; i<oldParents.length; i++) {
-            oldParent= oldParents[oldParents.length-i-1];
-            newParent = newParents[newParents.length-i-1];
-            if (oldParent!==newParent) {
+        for (i = 0; i < oldParents.length; i++) {
+            oldParent = oldParents[oldParents.length - i - 1];
+            newParent = newParents[newParents.length - i - 1];
+            if (oldParent !== newParent) {
                 $(oldParent).data("wrapperDelegate", $(newParent));
                 break;
             }
         }
     }
 
-    function enableDomManipDelegate(fnName) {
+    function enableDomManipDelegate(fnName, callFilter) {
         var old = $.fn[fnName];
         $.fn[fnName] = function() {
+            if (enableDomManipDelegate.recurse || (callFilter && !callFilter.apply(this, arguments))) {
+                return old.apply(this, arguments);
+            }
             try {
+                enableDomManipDelegate.recurse = true;
                 var args = Array.prototype.slice.call(arguments),
                     delegate,
                     arg0 = args[0],
                     argDelegate;
                 delegate = this.data("wrapperDelegate");
-                if (delegate && fnName==='remove') {
-                    this.removeData("wrapperDelegate");
-                    old.apply(this, args);
+                if (delegate && fnName === 'remove') {
+                    old.apply(this, arguments);
                 }
                 if (arg0 && typeof arg0.data === "function") {
                     argDelegate = arg0.data("wrapperDelegate");
                     args[0] = argDelegate || args[0];
                 }
-                if (delegate) {
-                    window.top.console.log("delegate ",fnName,delegate,argDelegate);
-                }
-                return old.apply(delegate||this, args);
+                return old.apply(delegate || this, args);
             } finally {
+                enableDomManipDelegate.recurse = false;
             }
         };
     }
@@ -36136,7 +36188,7 @@ factory(window.jQuery, window.angular);
         if (!widgetInstance) {
             return;
         }
-        if (widgetInstance.disable && widgetInstance.enable) {
+        if (widgetInstance.disable && widgetInstance.enable && (iAttrs.disabled || iAttrs.ngDisabled)) {
             bindDisabledAttribute(widgetName, iElement, iAttrs);
         }
         if (widgetInstance.refresh) {
@@ -36148,7 +36200,7 @@ factory(window.jQuery, window.angular);
     }
 
     function bindDisabledAttribute(widgetName, iElement, iAttrs) {
-        iAttrs.$observe("disabled", function (value) {
+        iAttrs.$observe("disabled", function(value) {
             if (value) {
                 iElement[widgetName]("disable");
             } else {
@@ -36158,7 +36210,7 @@ factory(window.jQuery, window.angular);
     }
 
     function refreshAfterNgModelRender(widgetName, scope, iElement, ngModelCtrl) {
-        addCtrlFunctionListener(ngModelCtrl, "$render", function () {
+        addCtrlFunctionListener(ngModelCtrl, "$render", function() {
             triggerAsyncRefresh(widgetName, scope, iElement, "refresh");
         });
     }
@@ -36168,7 +36220,7 @@ factory(window.jQuery, window.angular);
         if (!ctrl[listenersName]) {
             ctrl[listenersName] = [];
             var oldFn = ctrl[ctrlFnName];
-            ctrl[ctrlFnName] = function () {
+            ctrl[ctrlFnName] = function() {
                 var res = oldFn.apply(this, arguments);
                 for (var i = 0; i < ctrl[listenersName].length; i++) {
                     ctrl[listenersName][i]();
@@ -36180,7 +36232,7 @@ factory(window.jQuery, window.angular);
     }
 
     function refreshOnChildrenChange(widgetName, scope, iElement) {
-        iElement.bind("$childrenChanged", function () {
+        iElement.bind("$childrenChanged", function() {
             triggerAsyncRefresh(widgetName, scope, iElement, "refresh");
         });
     }
@@ -36189,7 +36241,7 @@ factory(window.jQuery, window.angular);
         var prop = "_refresh" + widgetName;
         var refreshId = (iElement.data(prop) || 0) + 1;
         iElement.data(prop, refreshId);
-        scope.$evalAsync(function () {
+        scope.$evalAsync(function() {
             if (iElement.data(prop) === refreshId) {
                 iElement[widgetName](options);
             }
@@ -36202,19 +36254,25 @@ factory(window.jQuery, window.angular);
 (function (angular, $) {
     var ng = angular.module("ng");
     ng.config(["jqmNgWidgetProvider", function(jqmNgWidgetProvider) {
+        // register a default handler for all widgets.
+        var widgetName, widget;
+        for (widgetName in $.mobile) {
+            widget = $.mobile[widgetName];
+            if (widgetName!=='page' && angular.isFunction(widget) && widget.prototype.widget) {
+                jqmNgWidgetProvider.widget(widgetName, ["jqmNgWidget", defaultWidget]);
+            }
+        }
+
+        // register special override handlers
         jqmNgWidgetProvider.widget("checkboxradio", ["jqmNgWidget", checkboxRadioWidget]);
         jqmNgWidgetProvider.widget("button", ["jqmNgWidget", buttonWidget]);
         jqmNgWidgetProvider.widget("collapsible", ["jqmNgWidget", "$parse", collapsibleWidget]);
         jqmNgWidgetProvider.widget("dialog", ["jqmNgWidget", dialogWidget]);
         jqmNgWidgetProvider.widget("controlgroup", ["jqmNgWidget", controlgroupWidget]);
-        jqmNgWidgetProvider.widget("textinput", ["jqmNgWidget", defaultWidget]);
+        jqmNgWidgetProvider.widget("textinput", ["jqmNgWidget", textinputWidget]);
         jqmNgWidgetProvider.widget("slider", ["jqmNgWidget", "$timeout", sliderWidget]);
-        jqmNgWidgetProvider.widget("listview", ["jqmNgWidget", defaultWidget]);
-        jqmNgWidgetProvider.widget("collapsibleset", ["jqmNgWidget", defaultWidget]);
-        jqmNgWidgetProvider.widget("selectmenu", ["jqmNgWidget", defaultWidget]);
-        jqmNgWidgetProvider.widget("navbar", ["jqmNgWidget", defaultWidget]);
-        jqmNgWidgetProvider.widget("fixedtoolbar", ["jqmNgWidget", defaultWidget]);
         jqmNgWidgetProvider.widget("popup", ["jqmNgWidget", "$parse", popupWidget]);
+        jqmNgWidgetProvider.widget("panel", ["jqmNgWidget", "$parse", panelWidget]);
     }]);
 
     function defaultWidget(jqmNgWidet) {
@@ -36226,47 +36284,80 @@ factory(window.jQuery, window.angular);
         };
     }
 
+    function textinputWidget(jqmNgWidget) {
+        return {
+            preLink: function(widgetName, scope, iElement, iAttrs, ngModelCtrl, selectCtrl) {
+                if (iAttrs.type === 'range') {
+                    iAttrs.type = 'number';
+                }
+            },
+            link: function(widgetName, scope, iElement, iAttrs, ngModelCtrl, selectCtrl) {
+                jqmNgWidget.createWidget(widgetName, iElement, iAttrs);
+                jqmNgWidget.bindDefaultAttrsAndEvents(widgetName, scope, iElement, iAttrs, ngModelCtrl);
+            }
+        };
+    }
+
     function popupWidget(jqmNgWidet, $parse) {
         return {
             link: function(widgetName, scope, iElement, iAttrs, ngModelCtrl, selectCtrl) {
                 jqmNgWidet.createWidget(widgetName, iElement, iAttrs);
                 jqmNgWidet.bindDefaultAttrsAndEvents(widgetName, scope, iElement, iAttrs, ngModelCtrl);
-                bindOpenedAttribute(scope, iElement, iAttrs);
+                addOpenedBinding("popup", $parse, scope, iElement, iAttrs, '_');
             }
         };
+    }
 
-        function bindOpenedAttribute(scope, iElement, iAttrs) {
-            if (iAttrs.opened) {
-                var openedGetter = $parse(iAttrs.opened),
-                    openedSetter = openedGetter.assign,
-                    widget = iElement.data($.mobile.popup.prototype.widgetFullName);
-                scope.$watch(openedGetter, function (value) {
-                    if (value) {
-                        iElement.popup("open");
-                    } else {
-                        iElement.popup("close");
-                    }
-                });
-                if (widget && openedSetter) {
-                    openedSetter(scope, widget._isOpen);
-                    var _open = widget._open,
-                        _close = widget._close;
-                    widget._open = function() {
-                        var res = _open.apply(this, arguments);
-                        scope.$apply(function () {
-                            openedSetter(scope, true);
-                        });
-                        return res;
-                    };
-                    widget._close = function() {
-                        var res = _close.apply(this, arguments);
-                        scope.$apply(function () {
-                            openedSetter(scope, false);
-                        });
-                        return res;
-                    };
-                }
+    function panelWidget(jqmNgWidet, $parse) {
+        return {
+            link: function(widgetName, scope, iElement, iAttrs, ngModelCtrl, selectCtrl) {
+                jqmNgWidet.createWidget(widgetName, iElement, iAttrs);
+                jqmNgWidet.bindDefaultAttrsAndEvents(widgetName, scope, iElement, iAttrs, ngModelCtrl);
+                addOpenedBinding("panel", $parse, scope, iElement, iAttrs, '');
             }
+        };
+    }
+
+    function addOpenedBinding(widgetName, $parse, scope, iElement, iAttrs, openCloseMethodPrefix) {
+        var syncing = false;
+        if (iAttrs.opened) {
+            var openedGetter = $parse(iAttrs.opened),
+                openedSetter = openedGetter.assign;
+
+            scope.$watch(openedGetter, updateWidget);
+            if (openedSetter) {
+                updateScopeOn(openCloseMethodPrefix+"open", true);
+                updateScopeOn(openCloseMethodPrefix+"close", false);
+            }
+        }
+
+        function updateScopeOn(methodName, scopeValue) {
+            var widget = iElement.data($.mobile[widgetName].prototype.widgetFullName),
+                _old = widget[methodName];
+            widget[methodName] = function() {
+                var res = _old.apply(this, arguments);
+                if (!syncing) {
+                    syncing = true;
+                    scope.$apply(function () {
+                        openedSetter(scope, scopeValue);
+                    });
+                    syncing = false;
+                }
+                return res;
+            };
+        }
+
+        function updateWidget(opened) {
+            if (syncing) {
+                return;
+            }
+            syncing = true;
+            if (opened) {
+                iElement[widgetName]("open");
+            } else {
+                iElement[widgetName]("close");
+            }
+            syncing = false;
         }
     }
 
@@ -36275,19 +36366,35 @@ factory(window.jQuery, window.angular);
             link: function(widgetName, scope, iElement, iAttrs, ngModelCtrl, selectCtrl) {
                 if (selectCtrl) {
                     // Note: scope.$evalAsync is not enough here :-(
-                    $timeout(function() {
-                        selectSecondOptionIfFirstIsUnknownOption(iElement, ngModelCtrl);
+                    waitForNgOptionsAndNgRepeatToCreateOptions(function() {
+                        selectSecondOptionIfFirstIsUnknownOptionToRemoveUnkownOption(iElement, ngModelCtrl);
                         jqmNgWidet.createWidget(widgetName, iElement, iAttrs);
                         jqmNgWidet.bindDefaultAttrsAndEvents(widgetName, scope, iElement, iAttrs, ngModelCtrl);
                     });
                 } else {
+                    setMinValueInScopeIfNoValueInScopeAsJqmStartsWithMinValue(iAttrs, ngModelCtrl);
                     jqmNgWidet.createWidget(widgetName, iElement, iAttrs);
                     jqmNgWidet.bindDefaultAttrsAndEvents(widgetName, scope, iElement, iAttrs, ngModelCtrl);
                 }
             }
         };
 
-        function selectSecondOptionIfFirstIsUnknownOption(iElement, ngModelCtrl) {
+        function waitForNgOptionsAndNgRepeatToCreateOptions(callback) {
+            // Note: scope.$evalAsync is not enough here :-(
+            $timeout(callback);
+        }
+
+        function setMinValueInScopeIfNoValueInScopeAsJqmStartsWithMinValue(iAttrs, ngModelCtrl) {
+            if (ngModelCtrl && typeof iAttrs.min !== "undefined") {
+                var _$pristine = ngModelCtrl.$pristine;
+                ngModelCtrl.$pristine = false;
+                ngModelCtrl.$setViewValue(iAttrs.min);
+                ngModelCtrl.$render();
+                ngModelCtrl.$pristine = _$pristine;
+            }
+        }
+
+        function selectSecondOptionIfFirstIsUnknownOptionToRemoveUnkownOption(iElement, ngModelCtrl) {
             var options = iElement.children("option"),
                 initValue = options.eq(0).val(),
                 selectedIndex;
@@ -36349,7 +36456,7 @@ factory(window.jQuery, window.angular);
             precompile: function(origElement, initArgs) {
                 // Add a text node with the value content,
                 // as we need a text node later in the jqm button markup!
-                if (origElement[0].nodeName === 'INPUT') {
+                if (origElement[0].nodeName.toUpperCase() === 'INPUT') {
                     var value = origElement.val();
                     origElement.append(document.createTextNode(value));
                 }
@@ -36379,28 +36486,43 @@ factory(window.jQuery, window.angular);
         };
 
         function bindCollapsedAttribute(scope, iElement, iAttrs) {
+            var syncing = false;
             if (iAttrs.collapsed) {
                 var collapsedGetter = $parse(iAttrs.collapsed);
                 var collapsedSetter = collapsedGetter.assign;
-                scope.$watch(collapsedGetter, function (value) {
-                    if (value) {
-                        iElement.trigger("collapse");
-                    } else {
-                        iElement.trigger("expand");
-                    }
-                });
+                scope.$watch(collapsedGetter, updateWidget);
                 if (collapsedSetter) {
-                    iElement.bind("collapse", function () {
-                        scope.$apply(function () {
-                            collapsedSetter(scope, true);
-                        });
-                    });
-                    iElement.bind("expand", function () {
-                        scope.$apply(function () {
-                            collapsedSetter(scope, false);
-                        });
-                    });
+                    updateScopeOn("collapse", true);
+                    updateScopeOn("expand", false);
                 }
+            }
+
+            function updateWidget(collapsed) {
+                if (syncing) {
+                    return;
+                }
+                syncing = true;
+                if (collapsed) {
+                    iElement.triggerHandler("collapse");
+                } else {
+                    iElement.triggerHandler("expand");
+                }
+                syncing = false;
+            }
+
+            function updateScopeOn(eventName, newCollapsedValue) {
+                iElement.bind(eventName, function (event) {
+                    if (syncing) {
+                        return;
+                    }
+                    syncing = true;
+                    if ( iElement[0]===event.target ) {
+                        scope.$apply(function () {
+                            collapsedSetter(scope, newCollapsedValue);
+                        });
+                    }
+                    syncing = false;
+                });
             }
         }
     }
@@ -36410,10 +36532,9 @@ factory(window.jQuery, window.angular);
             precompile: dialogPrecompile,
             link: function(widgetName, scope, iElement, iAttrs, ngModelCtrl) {
                 jqmNgWidet.createWidget(widgetName, iElement, iAttrs);
-
                 // add handler to enhanced close button manually (the one we added in precompile),
                 // and remove the other close button (the one the widget created).
-                var closeButtons = iElement.find(':jqmData(role="header") :jqmData(icon="delete")');
+                var closeButtons = iElement.find(':jqmData(role="header") a:jqmData(icon="delete")');
                 closeButtons.eq(1).bind("click", function() {
                     iElement.dialog("close");
                 });
@@ -36429,10 +36550,27 @@ factory(window.jQuery, window.angular);
         // and that is executed when we create the page widget, which is before the dialog widget is created :-(
         // We cannot adjust the timing of the header enhancement as it is no jqm widget.
         function dialogPrecompile(origElement, initAttrs) {
-            var options = $.mobile.dialog.prototype.options;
-            var headerCloseButton = $("<a href='#' data-" + $.mobile.ns + "icon='delete' data-" + $.mobile.ns + "iconpos='notext'>" + options.closeBtnText + "</a>");
-            origElement.find(":jqmData(role='header')").prepend(headerCloseButton);
-            origElement.data('headerCloseButton', headerCloseButton);
+            FakeDialog.prototype = $.mobile.dialog.prototype;
+            var fakeDialog = new FakeDialog(origElement, {}),
+                options = fakeDialog.options,
+                value = options.closeBtn;
+
+            // The following code is adapted from $.mobile.dialog.prototype._setCloseBtn
+            if ( value !== "none" ) {
+                // Sanitize value
+                var location = ( value === "left" ? "left" : "right" );
+                var btn = $( "<a href='#' class='ui-btn-" + location + "' data-" + $.mobile.ns + "icon='delete' data-" + $.mobile.ns + "iconpos='notext'>"+ options.closeBtnText + "</a>" );
+                origElement.find( ":jqmData(role='header')" ).first().prepend( btn );
+            }
+
+            function FakeDialog(element, options) {
+                this.element = element;
+                this.options = $.widget.extend( {},
+                    this.options,
+                    this._getCreateOptions(),
+                    options
+                );
+            }
         }
     }
 

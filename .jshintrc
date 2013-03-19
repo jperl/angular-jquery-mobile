@@ -22,7 +22,8 @@
         "beforeEach",
         "inject",
         "it",
-        "expect"
+        "expect",
+        "testutils"
     ],
     "quotmark": "double",
     "regexp": true,

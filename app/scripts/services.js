@@ -1,10 +1,9 @@
-(function (undefined) {
-    "use strict";
+"use strict";
 
-    var app = angular.module("app");
+angular.module("app")
 
     //local storage version
-//    app.factory("todoStorage", function () {
+//    .factory("todoStorage", function () {
 //        var STORAGE_ID = "todos-angularjs";
 //
 //        return {
@@ -19,7 +18,7 @@
 //    });
 
     //remote storage version
-    app.factory("todoStorage", function ($http, $waitDialog) {
+    .factory("todoStorage", ["$http", "$waitDialog", function ($http, $waitDialog) {
         var readUrl = "https://secure.openkeyval.org/";
         var writeUrl = "https://secure.openkeyval.org/store/?";
 
@@ -51,5 +50,4 @@
             get: get,
             put: put
         };
-    });
-})();
+    }]);

@@ -1,9 +1,10 @@
-(function (undefined) {
-    "use strict";
+"use strict";
 
-    var app = angular.module("app", []);
-
-    app.run(function () {
-        TOOLS.applyFixes();
+angular.module("app", [])
+    .run(function () {
+        //fixes the 1px jump on page load
+        //https://github.com/jquery/jquery-mobile/issues/2846
+        $(function () {
+            $.mobile.defaultHomeScroll = 0;
+        });
     });
-})();

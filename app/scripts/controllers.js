@@ -1,9 +1,7 @@
-(function (undefined) {
-    "use strict";
+"use strict";
 
-    var app = angular.module("app");
-
-    app.controller("TodoController", ["$scope", "$location", "todoStorage",
+angular.module("app")
+    .controller("TodoController", ["$scope", "$location", "todoStorage",
         function ($scope, $location, todoStorage) {
             //initialize scope
             $scope.inputText = "";
@@ -41,4 +39,3 @@
                 $location.url("#" + page);
             };
         }]);
-})();

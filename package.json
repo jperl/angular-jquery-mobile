@@ -23,7 +23,8 @@
         "grunt-preprocess": "2.0.0",
         "matchdep": "~0.1.1",
         "grunt-google-cdn": "~0.0.1",
-        "phantomjs": "latest"
+        "phantomjs": "latest",
+        "cucumber": "latest"
     },
     "engines": {
         "node": ">=0.8.0"

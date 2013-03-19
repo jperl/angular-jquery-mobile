@@ -253,7 +253,11 @@ module.exports = function (grunt) {
             var content = escapeContent(grunt.file.read(file));
             var template = util.format(TEMPLATE, "app", file, content);
 
-            grunt.file.write(file + ".js", template);
+            var slashIndex = file.lastIndexOf("/");
+
+            //put the file in app/templates/generated and append .js
+            file = "app/templates/generated" + file.substr(slashIndex) + ".js";
+            grunt.file.write(file, template);
         });
     });
 
@@ -306,6 +310,7 @@ module.exports = function (grunt) {
         "cssmin",
         "htmlmin",
         "concat",
+        //"uglify",
         "copy",
         "cdnify",
         "usemin"

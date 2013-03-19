@@ -37,7 +37,7 @@ All testing is ran on [testacular](http://testacular.github.com).
 
 Unit tests use [Jasmine](http://pivotal.github.com/jasmine/).
 
-TODO: E2E tests use [uitest](https://github.com/tigbro/uitest.js) and [cucumber-js](https://github.com/cucumber/cucumber-js).
+E2E tests use [cucumber-js](https://github.com/cucumber/cucumber-js). Learn more about gherkin writing style [here](https://github.com/cucumber/cucumber/wiki).
 
 ### Strategy
 

@@ -1,30 +1,49 @@
 "use strict";
 
 //based off https://github.com/vojtajina/ng-directive-testing/blob/master/test/tabsSpec.js
+//and https://github.com/tigbro/jquery-mobile-angular-adapter/blob/master/test/unit/integration/checkBoxSpec.js
 describe("todo", function () {
-    var element, scope;
-
     beforeEach(module("app"));
 
-    beforeEach(inject(function ($rootScope, $compile) {
-        element = angular.element("<div><div todo></div></div>");
+    var firstTest, secondTest;
 
-        scope = $rootScope;
-        $compile(element)(scope);
+    it("log the element", function () {
+        var c = testutils.compileInPage("<div todo></div>");
 
+        var scope = c.page.scope();
         scope.todo = { name: "First", completed: true };
-        scope.$digest();
-    }));
+        scope.$root.$digest();
 
-    it("should display the task name", function () {
-        var label = element.find("label");
-
-        expect(label.text()).toContain("First");
+        firstTest = c.element.html();
+        console.log(firstTest);
     });
 
-    it("should be checked if the task is complete", function () {
-        var checkItems = element.find(".ui-icon-checkbox-on");
+    it("should log the same html as the first test", function () {
+        var c = testutils.compileInPage("<div todo></div>");
 
-        expect(checkItems.length).toBe(1);
+        var scope = c.page.scope();
+        scope.todo = { name: "First", completed: true };
+        scope.$root.$digest();
+
+        secondTest = c.element.html();
+        console.log(secondTest);
+
+        expect(secondTest).toEqual(firstTest);
     });
+
+//    it("should be checked if the task is complete", function () {
+//        var c = testutils.compileInPage("<div todo></div>");
+//
+//        var label = c.element.find("label");
+
+//        expect(label.text()).toContain("First");
+
+//        var scope = c.page.scope();
+//        scope.todo = { name: "First", completed: true };
+//        scope.$root.$digest();
+//
+//        var checkItems = c.element.find(".ui-icon-checkbox-on");
+//
+//        expect(checkItems.length).toBe(1);
+//    });
 });
