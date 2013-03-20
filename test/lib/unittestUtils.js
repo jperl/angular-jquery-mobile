@@ -1,6 +1,5 @@
 (function($, angular, window) {
 
-
     beforeEach(function() {
         $(".temp").remove();
         $(":jqmData(role='page')").remove();

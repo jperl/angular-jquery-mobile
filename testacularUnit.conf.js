@@ -16,7 +16,7 @@ files = [
     "app/templates/**/*.html.js",
 
     //Test-Specific Code
-    "app/components/angular-mocks/angular-mocks.js",
+    "app/vendor/angular-mocks.js",
     "app/scripts/mocks.js",
     "test/lib/unittestUtils.js",
 
