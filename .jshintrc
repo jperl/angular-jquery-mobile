@@ -23,7 +23,10 @@
         "inject",
         "it",
         "expect",
-        "testutils"
+        "testutils",
+        "Cucumber",
+        "loadFeatures",
+        "addStepDefinitions"
     ],
     "quotmark": "double",
     "regexp": true,
