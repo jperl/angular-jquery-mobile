@@ -1,36 +1,60 @@
 /**
- * Wrapper around cucumber-js to create a standard runner & reporter for client side testing
- * Initially the runner has the following reporters available: cucumber-reporter (using cucumber-html)
- * and karma-cucumber for use with karma (http://karma-runner.github.com/)
+ * Wrapper around cucumber-js to create a standard runner & reporter for client side testing of multiple features / step definitions
+ * Initially the runner has the following reporters available: cucumber-html-reporter and
+ * karma-cucumber for use with karma (http://karma-runner.github.com/)
+ * Requires: async and jQuery
  */
 (function () {
     "use strict";
 
-    var my = {}, listeners = [], features = [], stepDefinitions = [],
+    var my = {}, reporters = [], featureUrls = [], features = null, stepDefinitions = [],
         featuresToLoad = 0;
 
-    //if the user calls run before sources are loaded, Cucumber.run will set this up
-    var attemptRun = function () {
+    /**
+     * Load the features for the runner
+     */
+    var loadFeatures = function () {
+        if (features !== null) {
+            throw new Error("A load is already in progress");
+        }
+
+        features = [];
+        for (var i = 0; i < featureUrls.length; i++) {
+            features.push({url: featureUrls[i], text: null});
+        }
+
+        featuresToLoad = featureUrls.length;
+
+        async.each(featureUrls, function (url, callback) {
+            $.get(url, function (text) {
+                //find and set the text on the corresponding feature
+                $.each(features, function (i, feature) {
+                    if (feature.url === url) {
+                        feature.text = text;
+                        return false; //exit loop
+                    }
+                });
+
+                featuresToLoad -= 1;
+                callback();
+            });
+
+        }, function (err) {
+            if (err)
+                throw err;
+
+            //run cucumber after all features are loaded
+            Cucumber.run();
+        });
     };
 
     /**
      * Load the .feature definitions to test
      * @param {Array.<String>} urls
      */
-    window.loadFeatures = function (urls) {
-        featuresToLoad += urls.length;
-
-        async.each(urls, function (url, callback) {
-            $.get(url, function (data) {
-                features.push(data);
-                featuresToLoad -= 1;
-                console.log("feature loaded");
-                callback();
-            });
-
-        }, function (err) {
-            attemptRun();
-        });
+    window.addFeatures = function (urls) {
+        featureUrls = urls;
+        loadFeatures();
     };
 
     /**
@@ -42,42 +66,55 @@
     };
 
     /**
-     * Attach a listener to the cucumber test runner
-     * @param listener
+     * Attach a reporter to the cucumber test runner
+     * @param reporter
      */
-    Cucumber.attachListener = function (listener) {
-        listeners.push(listener);
+    Cucumber.attachReporter = function (reporter) {
+        reporters.push(reporter);
     };
 
     /**
      * Run the cucumber feature tests
      */
     Cucumber.run = function () {
-        //wait to run until all features are loaded
-        if (featuresToLoad > 0) {
-            //setup the attemptRun callback
-            attemptRun = Cucumber.run;
+        //reload the features if they are null
+        if (features === null) {
+            loadFeatures();
             return;
         }
 
-        var featuresSource = features.join();
+        //wait to run until all features are loaded
+        //after they are loaded, run will automatically be called again
+        if (featuresToLoad > 0) {
+            return;
+        }
 
+        //combine the step definitions into one function
+        //since cucumber-js only accepts one set of definitions
         var stepDefinitionsSource = function () {
             var that = this;
-            stepDefinitions.forEach(function (func) {
+            $.each(stepDefinitions, function (index, func) {
                 func(that);
             });
         };
 
-        var cucumber = Cucumber(featuresSource, stepDefinitionsSource);
+        //run cucumber-js for each feature
+        $.each(features, function (index, feature) {
+            var cucumber = Cucumber(feature.text, stepDefinitionsSource);
 
-        listeners.forEach(function (listener) {
-            cucumber.attachListener(listener);
+            $.each(reporters, function (index, reporter) {
+                //get the listener for a feature
+                var listener = reporter.getListener(feature);
+                cucumber.attachListener(listener);
+            });
+
+            cucumber.start(function () {
+                //after the test is complete
+            });
         });
 
-        cucumber.start(function () {
-            console.log("Complete");
-        });
+        //forces a reload of features every time
+        features = null;
     };
 
     return my;

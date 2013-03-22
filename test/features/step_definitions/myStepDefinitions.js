@@ -10,14 +10,12 @@ addStepDefinitions(function (step) {
     step.When("user adds $todo to the list", function (todo, callback) {
         callback();
 
-        console.log(todo);
 //        callback.pending();
     });
 
     step.When("user completes $todo", function (todo, callback) {
         callback();
 
-        console.log(todo);
 //        callback.pending();
     });
 
@@ -30,13 +28,10 @@ addStepDefinitions(function (step) {
     step.Then("user should see $todo in the list", function (todo, callback) {
         callback();
 
-        console.log(todo);
 //        callback.pending();
     });
 
     step.Then("user should not see $todo in the list", function (todo, callback) {
-        console.log(todo);
-
         callback();
 //        callback.pending();
     });

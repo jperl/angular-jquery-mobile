@@ -1,3 +1,7 @@
+/**
+ * Wrapper around cucumber-html to interact with cucumber-runner
+ * and set up the run button and output automatically
+ */
 (function () {
     "use strict";
 
@@ -72,25 +76,40 @@
         return self;
     };
 
-    /**
-     * The default reporter
-     * @constructor
-     */
-    Cucumber.HtmlReporter = function () {
-        var output = $("<div id='output' class='cucumber-report'></div>"),
-            runButton = $("<button id='run'>Run</button>");
+    var output = $("<div id='output' class='cucumber-report'></div>"),
+        runButton = $("<button id='run'>Run</button>");
 
-        runButton.click(function () {
-            Cucumber.run();
-        });
-
-        //add run button and the output elements
+    //setup the run button and add the output div
+    var initialize = function () {
         $(document).ready(function () {
             var body = $("body");
             runButton.appendTo(body);
             output.appendTo(body);
         });
 
-        return cucumberHTMLListener(output);
+        runButton.click(function () {
+            output.empty();
+            Cucumber.run();
+        });
+
+        //clear initialization function after it is used once
+        initialize = function () {
+        };
+    };
+
+    /**
+     * The default reporter
+     */
+    Cucumber.HtmlReporter = function () {
+        initialize();
+
+        //returns the listener to report on a feature
+        this.getListener = function (feature) {
+            var featureReport = $("<div></div>");
+            output.append(featureReport);
+            return cucumberHTMLListener(featureReport);
+        };
+
+        return this;
     };
 }());

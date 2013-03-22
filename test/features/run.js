@@ -1,4 +1,4 @@
-loadFeatures(["features/user_adds_todo.feature"]);
+addFeatures(["features/user_adds_todo.feature", "features/user_completes_todo.feature", "features/user_saves_todo.feature"]);
 
-Cucumber.attachListener(new Cucumber.HtmlReporter());
+Cucumber.attachReporter(new Cucumber.HtmlReporter());
 Cucumber.run();
