@@ -29,7 +29,7 @@ module.exports = function (grunt) {
             server: {
                 files: [
                     "{.tmp,app}/*.html",
-                    "{.tmp,app}/*/*.html",
+                    "{.tmp,app}/**/*.html",
                     "{.tmp,app}/scripts/**/*.js",
                     "{.tmp,app}/styles/**/*.css",
                     "{.tmp,app}/styles/**/*.less",
