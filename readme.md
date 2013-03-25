@@ -37,7 +37,7 @@ All testing is ran on [testacular](http://testacular.github.com).
 
 Unit tests use [Jasmine](http://pivotal.github.com/jasmine/).
 
-Acceptance / E2E tests use [cucumber](https://github.com/cucumber/cucumber-js). Learn more about gherkin writing style [here](https://github.com/cucumber/cucumber/wiki).
+Acceptance / E2E tests use [cucumber](https://github.com/jperl/cucumber-js-runner). Learn more about gherkin writing style [here](https://github.com/cucumber/cucumber/wiki).
 
 ### Strategy
 
@@ -45,7 +45,7 @@ Acceptance / E2E tests use [cucumber](https://github.com/cucumber/cucumber-js). 
 | ------------- |:----------:|:-----------:|
 | Service       | Unit Test  | [example](https://github.com/jperl/angular-jquery-mobile/blob/master/test/unit/todoStorageSpec.js) |
 | Directive     | Unit Test  | [example](https://github.com/jperl/angular-jquery-mobile/blob/master/test/unit/todoSpec.js) |
-| Acceptance / E2E | Cucumber Feature Test| [feature](), [step definition]() |
+| Acceptance / E2E | Cucumber Feature Test| [feature](https://github.com/jperl/angular-jquery-mobile/blob/master/test/features/user_adds_todo.feature), [step definition](https://github.com/jperl/angular-jquery-mobile/blob/master/test/features/step_definitions/myStepDefinitions.js) |
 
 #####Run tests once on PhantomJS
 `grunt ci`
