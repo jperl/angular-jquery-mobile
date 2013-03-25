@@ -26,7 +26,8 @@
         "testutils",
         "Cucumber",
         "loadFeatures",
-        "addStepDefinitions"
+        "addStepDefinitions",
+        "uitest"
     ],
     "quotmark": "double",
     "regexp": true,
