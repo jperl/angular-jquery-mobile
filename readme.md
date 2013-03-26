@@ -14,7 +14,7 @@ The [grunt workflow](https://github.com/jperl/angular-jquery-mobile/blob/master/
 	- angular templates can be [seperated](https://github.com/jperl/angular-jquery-mobile/tree/master/app/templates), [processed](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L25) then [referenced](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L31) from the index page
 	- development [mocks](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L37) can be inserted
 - [builds](#build) your code
-- [runs unit tests](#testing) with testacular (and soon E2E tests with [cucumber](https://github.com/jperl/cucumber-js-runner/issues/1)) to test  your code
+- [runs unit tests](#testing) with testacular (and soon E2E tests with [cucumber](https://github.com/jperl/karma-cucumber/issues/1)) to test  your code
 
 # Getting Started
 
@@ -37,7 +37,7 @@ All testing is ran on [testacular](http://testacular.github.com).
 
 Unit tests use [Jasmine](http://pivotal.github.com/jasmine/).
 
-Acceptance / E2E tests use [cucumber](https://github.com/jperl/cucumber-js-runner). Learn more about gherkin writing style [here](https://github.com/cucumber/cucumber/wiki).
+Acceptance / E2E tests use [cucumber](https://github.com/jperl/karma-cucumber). Learn more about gherkin writing style [here](https://github.com/cucumber/cucumber/wiki).
 
 ### Strategy
 
