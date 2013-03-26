@@ -5,7 +5,7 @@ addStepDefinitions(function (step) {
         return $("[todo]").find("span:contains('" + text + "')");
     };
 
-    step.Given("user opens the list", function (callback) {
+    step.defineStep("user opens the list", function (callback) {
         //create a new test every time
         uit = uitest.create();
         uit.feature("angularIntegration");
@@ -17,7 +17,7 @@ addStepDefinitions(function (step) {
         });
     });
 
-    step.When("user adds $todoText to the list", function (todoText, callback) {
+    step.defineStep("user adds $todoText to the list", function (todoText, callback) {
         uit.ready(function (document, angular) {
             var input = angular.element("#todoInput");
             input.val(todoText);
@@ -27,7 +27,7 @@ addStepDefinitions(function (step) {
         });
     });
 
-    step.When("user completes $todoText", function (todoText, callback) {
+    step.defineStep("user completes $todoText", function (todoText, callback) {
         uit.ready(function (document, $, angular) {
             var todoElement = findTodo($, todoText);
             todoElement = angular.element(todoElement);
@@ -38,14 +38,14 @@ addStepDefinitions(function (step) {
         });
     });
 
-    step.When("user saves the list", function (callback) {
+    step.defineStep("user saves the list", function (callback) {
         uit.ready(function (document, angular) {
             angular.element("#save").click();
             callback();
         });
     });
 
-    step.Then("user should see $todoText in the list", function (todoText, callback) {
+    step.defineStep("user should see $todoText in the list", function (todoText, callback) {
         uit.ready(function (document, $) {
             var todo = findTodo($, todoText);
             if (todo.length === 0) {
@@ -57,7 +57,7 @@ addStepDefinitions(function (step) {
         });
     });
 
-    step.Then("user should not see $todoText in the list", function (todoText, callback) {
+    step.defineStep("user should not see $todoText in the list", function (todoText, callback) {
         uit.ready(function (document, $) {
             var todo = findTodo($, todoText);
             if (todo.length === 0) {

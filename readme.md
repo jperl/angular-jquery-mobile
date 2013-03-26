@@ -10,9 +10,9 @@ The [grunt workflow](https://github.com/jperl/angular-jquery-mobile/blob/master/
 - [compiles](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L15) less into a css file
 - [lints](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L78) your code against JSHint rules
 - [preprocesses](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L127) an indexTemplate and builds the index.html so
-	- jquery mobile views can be seperated and [inserted](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L17) into the index page
-	- angular templates can be [seperated](https://github.com/jperl/angular-jquery-mobile/tree/master/app/templates), [processed](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L25) then [referenced](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L27) from the index page
-	- development [mocks](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L32) can be inserted
+	- jquery mobile views can be seperated and [inserted](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L21) into the index page
+	- angular templates can be [seperated](https://github.com/jperl/angular-jquery-mobile/tree/master/app/templates), [processed](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L25) then [referenced](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L31) from the index page
+	- development [mocks](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L37) can be inserted
 - [builds](#build) your code
 - [runs unit tests](#testing) with testacular (and soon E2E tests with [cucumber](https://github.com/jperl/cucumber-js-runner/issues/1)) to test  your code
 

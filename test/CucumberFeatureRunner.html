@@ -19,10 +19,7 @@
     <script src="features/step_definitions/myStepDefinitions.js"></script>
 
     <script>
-        addFeatures(["features/user_adds_todo.feature"]);
-
-        //right now multiple features at once not working
-        //, "features/user_completes_todo.feature", "features/user_saves_todo.feature"
+        addFeatures(["features/user_adds_todo.feature", "features/user_completes_todo.feature", "features/user_saves_todo.feature"]);
         Cucumber.attachReporter(new Cucumber.HtmlReporter());
         Cucumber.run();
     </script>
