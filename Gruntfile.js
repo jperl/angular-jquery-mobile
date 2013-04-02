@@ -121,7 +121,6 @@ module.exports = function (grunt) {
             dist: {
                 files: {
                     "dist/scripts/main.js": [
-                        ".tmp/scripts/*.js",
                         "app/scripts/*.js"
                     ]
                 }
@@ -152,12 +151,11 @@ module.exports = function (grunt) {
                 ]
             }
         },
-        cssmin: {
+        mincss: {
             dist: {
                 files: {
                     "dist/styles/main.css": [
-                        ".tmp/styles/*.css",
-                        "app/styles/*.css"
+                        "{.tmp,app}/styles/*.css"
                     ]
                 }
             }
@@ -262,7 +260,6 @@ module.exports = function (grunt) {
             tasks.push("watch");
         }
 
-
         grunt.task.run(tasks);
     });
 
@@ -288,7 +285,7 @@ module.exports = function (grunt) {
         "jshint",
         "useminPrepare",
         "imagemin",
-        "cssmin",
+        "mincss",
         "htmlmin",
         "concat",
         //"uglify",
