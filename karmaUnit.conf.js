@@ -1,11 +1,10 @@
-// Testacular configuration
+// Karma configuration
 
-// list of all files / patterns to load in the browser
+frameworks = ['jasmine'];
 
 files = [
     JASMINE,
     JASMINE_ADAPTER,
-
     //3rd Party Code
     "app/vendor/jquery-mobile-angular-adapter-standalone.js",
     "app/components/angular-resource/angular-resource.js",
@@ -24,11 +23,8 @@ files = [
     "test/unit/**/*Spec.js"
 ];
 
-// list of files to exclude
 exclude = [];
 
-// level of logging
-// possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
 logLevel = LOG_INFO;
 
 // Start these browsers, currently available:
@@ -38,5 +34,4 @@ logLevel = LOG_INFO;
 // - Opera
 // - Safari
 // - PhantomJS
-process.env["PHANTOMJS_BIN"] = "node_modules/.bin/phantomjs";
 browsers = ["Chrome"];

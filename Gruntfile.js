@@ -28,14 +28,14 @@ module.exports = function (grunt) {
         watch: {
             server: {
                 files: [
-                    "{.tmp,app}/*.html",
-                    "{.tmp,app}/**/*.html",
-                    "{.tmp,app}/scripts/**/*.js",
-                    "{.tmp,app}/styles/**/*.css",
-                    "{.tmp,app}/styles/**/*.less",
-                    "{.tmp,app}/styles/images/*.{png,jpg,jpeg}"
+                    "app/indexTemplate.html",
+                    "app/templates/**/*.html",
+                    "app/views/**/*.html",
+                    "app/scripts/**/*.js",
+                    "app/styles/**/*.less",
+                    "app/styles/images/*.{png,jpg,jpeg}"
                 ],
-                tasks: ["less", "html2js:templates", "preprocess:dev", "jshint", "livereload"]
+                tasks: ["less", "html2js:templates", "preprocess:dev", "jshint"] //"livereload"
             }
         },
         connect: {
@@ -77,7 +77,8 @@ module.exports = function (grunt) {
         },
         jshint: {
             options: {
-                jshintrc: ".jshintrc"
+                jshintrc: ".jshintrc",
+                force: true
             },
             all: [
                 "Gruntfile.js",
@@ -86,42 +87,19 @@ module.exports = function (grunt) {
                 "!test/lib/*.js"
             ]
         },
-        testacular: {
+        karma: {
             options: {
-                basePath: "",
-
-                // web server port
-                port: 9876,
-
-                reporter: "progress",
-
-                // enable colors in the output (reporters and logs)
-                colors: true,
-
-                // disable watching file and executing tests whenever any file changes
-                autoWatch: false
+                browsers: ["Chrome"]  //PhantomJS will work in next karma release
             },
             unit: {
-                options: {
-                    configFile: "testacularUnit.conf.js",
-                    runnerPort: 9101
-                }
+                configFile: "karmaUnit.conf.js"
             },
             unitCi: {
-                options: {
-                    configFile: "testacularUnit.conf.js",
-                    runnerPort: 9101,
-                    keepalive: true,
-                    singleRun: true,
-                    browsers: ["PhantomJS"]
-                }
-            }
-        },
-        testacularRun: {
-            unit: {
-                options: {
-                    runnerPort: 9101
-                }
+                configFile: "karmaUnit.conf.js",
+                singleRun: true
+            },
+            e2e: {
+                configFile: "karmaE2E.conf.js"
             }
         },
         preprocess: {
@@ -232,10 +210,6 @@ module.exports = function (grunt) {
         }
     });
 
-    grunt.renameTask("regarde", "watch");
-    // remove when mincss task is renamed
-    grunt.renameTask("mincss", "cssmin");
-
     // template compilation
     var TEMPLATE = "angular.module('%s').run(function($templateCache) {\n" +
         "  $templateCache.put('%s',\n    '%s');\n" +
@@ -248,6 +222,8 @@ module.exports = function (grunt) {
     grunt.registerMultiTask("html2js", "Generate js version of html template.", function () {
         /* jshint camelcase: false */
         var files = grunt._watch_changed_files || grunt.file.expand(this.data);
+
+        console.log(files);
 
         files.forEach(function (file) {
             var content = escapeContent(grunt.file.read(file));
@@ -262,25 +238,30 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask("server", function (target) {
+        if (target === "dist") {
+            return grunt.task.run(["open:dist", "connect:dist:keepalive"]);
+        }
+
         var tasks = [
             "clean:server",
             "preprocess:dev",
             "less",
             "html2js:templates",
             "jshint",
-            "livereload-start",
+            //waiting on issue #
+            //"livereload-start",
             "connect:dev",
             "open:dev"
         ];
 
-        if (target === "dist") {
-            return grunt.task.run(["open:dist", "connect:dist:keepalive"]);
-        } else if (target === "test") {
-            //start testacular servers
-            tasks = tasks.concat(["testacular:unit"]);
+        if (target === "test") {
+            //start karma servers
+            tasks = tasks.concat(["karma:unit"]);
+        } else {
+            //start watch server
+            tasks.push("watch");
         }
 
-        tasks.push("watch:server");
 
         grunt.task.run(tasks);
     });
@@ -293,7 +274,7 @@ module.exports = function (grunt) {
         "jshint",
         "connect:dev",
         //run tests
-        "testacular:unitCi"
+        "karma:unitCi"
     ]);
 
     grunt.registerTask("build", [

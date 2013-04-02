@@ -1,15 +1,17 @@
 {
-    "appPath":"app",
-    "name":"testang",
-    "version":"0.0.0",
-    "dependencies":{
-        "angular":"~1.0.5",
-        "json3":"~3.2.4",
-        "es5-shim":"~2.0.5",
-        "angular-resource":"~1.0.5",
-        "angular-sanitize":"~1.0.5",
+    "appPath": "app",
+    "name": "testang",
+    "version": "0.0.0",
+    "dependencies": {
+        "angular": "~1.0.5",
+        "json3": "~3.2.4",
+        "es5-shim": "~2.0.5",
+        "angular-resource": "~1.0.5",
+        "angular-sanitize": "~1.0.5",
         "underscore": "latest"
     },
-    "devDependencies":{
+    "devDependencies": {
+        "karma-cucumber": "latest",
+        "uitest.js": "latest"
     }
 }

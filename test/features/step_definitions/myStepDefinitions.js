@@ -1,16 +1,19 @@
 "use strict";
 
 addStepDefinitions(function (step) {
-    var uit, findTodo = function ($, text) {
-        return $("[todo]").find("span:contains('" + text + "')");
-    };
+    var uit,
+    //base url from uitest.js
+        baseUrl = "../../../../",
+        findTodo = function ($, text) {
+            return $("[todo]").find("span:contains('" + text + "')");
+        };
 
     step.defineStep("user opens the list", function (callback) {
         //create a new test every time
         uit = uitest.create();
         uit.feature("angularIntegration");
 
-        uit.url("../../app/index.html");
+        uit.url(baseUrl + "app/index.html");
 
         uit.ready(function () {
             callback();

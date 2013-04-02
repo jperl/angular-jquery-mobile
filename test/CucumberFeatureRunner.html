@@ -4,16 +4,16 @@
     <title>Cucumber Feature Runner</title>
     <meta charset="utf-8">
 
-    <!--cucumber-js runner, html reporter, and required libs-->
-    <link rel="stylesheet" href="lib/cucumber-html.css">
-    <script src="lib/jquery-1.9.1.js"></script>
-    <script src="lib/async.js"></script>
-    <script src="lib/cucumber.js"></script>
-    <script src="lib/cucumber-js-runner.js"></script>
-    <script src="lib/cucumber-js-html-reporter.js"></script>
+    <!--required cucumber libs (all installed with bower) -->
+    <link rel="stylesheet" href="../app/components/karma-cucumber/vendor/cucumber-html.css">
+    <script src="../app/components/jquery/jquery.js"></script>
+    <script src="../app/components/async/lib/async.js"></script>
+    <script src="../app/components/karma-cucumber/vendor/cucumber.js"></script>
+    <script src="../app/components/karma-cucumber/lib/cucumber-js-runner.js"></script>
+    <script src="../app/components/karma-cucumber/lib/cucumber-js-html-reporter.js"></script>
 
-    <!--other test libs-->
-    <script src="lib/uitest.js"></script>
+    <!--uitest.js (also installed with bower) -->
+    <script src="../app/components/uitest.js/dist/uitest.js"></script>
 
     <!--step definitions-->
     <script src="features/step_definitions/myStepDefinitions.js"></script>
