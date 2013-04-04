@@ -3,8 +3,6 @@
 frameworks = ['jasmine'];
 
 files = [
-    JASMINE,
-    JASMINE_ADAPTER,
     //3rd Party Code
     "app/vendor/jquery-mobile-angular-adapter-standalone.js",
     "app/components/angular-resource/angular-resource.js",

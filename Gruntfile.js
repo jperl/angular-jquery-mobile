@@ -221,8 +221,6 @@ module.exports = function (grunt) {
         /* jshint camelcase: false */
         var files = grunt._watch_changed_files || grunt.file.expand(this.data);
 
-        console.log(files);
-
         files.forEach(function (file) {
             var content = escapeContent(grunt.file.read(file));
             var template = util.format(TEMPLATE, "app", file, content);
@@ -254,7 +252,7 @@ module.exports = function (grunt) {
 
         if (target === "test") {
             //start karma servers
-            tasks = tasks.concat(["karma:unit"]);
+            tasks = tasks.concat(["karma:e2e"]);
         } else {
             //start watch server
             tasks.push("watch");

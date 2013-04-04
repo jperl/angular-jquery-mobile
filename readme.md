@@ -14,7 +14,7 @@ The [grunt workflow](https://github.com/jperl/angular-jquery-mobile/blob/master/
 	- angular templates can be [seperated](https://github.com/jperl/angular-jquery-mobile/tree/master/app/templates), [processed](https://github.com/jperl/angular-jquery-mobile/blob/master/Gruntfile.js#L25) then [referenced](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L31) from the index page
 	- development [mocks](https://github.com/jperl/angular-jquery-mobile/blob/master/app/indexTemplate.html#L37) can be inserted
 - [builds](#build) your code
-- [runs unit tests](#testing) with karma (and soon E2E tests with [cucumber](https://github.com/jperl/karma-cucumber/issues/1)) to test  your code
+- [runs unit and E2E tests](#testing) with karma
 
 # Getting Started
 

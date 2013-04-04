@@ -2,7 +2,7 @@
 
 addStepDefinitions(function (step) {
     var uit,
-    //base url from uitest.js
+    //relative to uitest.js
         baseUrl = "../../../../",
         findTodo = function ($, text) {
             return $("[todo]").find("span:contains('" + text + "')");
