@@ -3,39 +3,27 @@
 var util = require("util");
 
 var lrSnippet = require("grunt-contrib-livereload/lib/utils").livereloadSnippet;
-var mountFolder = function (connect, dir) {
-    return connect.static(require("path").resolve(dir));
-};
 
 module.exports = function (grunt) {
     // load all grunt tasks
     require("matchdep").filterDev("grunt-*").forEach(grunt.loadNpmTasks);
 
     grunt.initConfig({
-        less: {
-            all: {
-                options: {
-                    compile: true
-                },
-                files: {
-                    "app/styles/main.css": "app/styles/main.less"
-                }
+        cdnify: {
+            dist: {
+                html: ["dist/*.html"]
             }
         },
-        html2js: {
-            templates: ["app/templates/**/*.html"]
+        clean: {
+            dist: ["dist/*"]
         },
-        watch: {
-            server: {
-                files: [
-                    "app/indexTemplate.html",
-                    "app/templates/**/*.html",
-                    "app/views/**/*.html",
-                    "app/scripts/**/*.js",
-                    "app/styles/**/*.less",
-                    "app/styles/images/*.{png,jpg,jpeg}"
-                ],
-                tasks: ["less", "html2js:templates", "preprocess:dev", "jshint"] //"livereload"
+        concat: {
+            dist: {
+                files: {
+                    "dist/scripts/main.js": [
+                        "app/scripts/*.js"
+                    ]
+                }
             }
         },
         connect: {
@@ -55,25 +43,80 @@ module.exports = function (grunt) {
             dist: {
                 options: {
                     port: 9000,
-                    middleware: function (connect) {
+                    hostname: "0.0.0.0",
+                    middleware: function (connect, options) {
                         return [
-                            mountFolder(connect, "dist")
+                            connect.static(options.base),
+                            connect.directory(options.base)
                         ];
                     }
                 }
             }
         },
-        open: {
+        copy: {
             dist: {
-                url: "http://localhost:<%= connect.dev.options.port %>"
-            },
-            dev: {
-                url: "http://localhost:<%= connect.dist.options.port %>:/app/index.html"
+                files: [
+                    {
+                        expand: true,
+                        dot: true,
+                        cwd: "app",
+                        dest: "dist",
+                        src: [
+                            "*.{ico,txt}",
+                            ".htaccess",
+                            "styles/fonts/**",
+                            "styles/images/**"
+                        ]
+                    }
+                ]
             }
         },
-        clean: {
-            dist: [".tmp", "dist/*"],
-            server: ".tmp"
+        cssmin: {
+            dist: {
+                files: {
+                    "dist/styles/main.css": [
+                        "app/styles/*.css"
+                    ]
+                }
+            }
+        },
+        html2js: {
+            templates: ["app/templates/**/*.html"]
+        },
+        htmlmin: {
+            dist: {
+                options: {
+                    /*removeCommentsFromCDATA: true,
+                     // https://github.com/yeoman/grunt-usemin/issues/44
+                     //collapseWhitespace: true,
+                     collapseBooleanAttributes: true,
+                     removeAttributeQuotes: true,
+                     removeRedundantAttributes: true,
+                     useShortDoctype: true,
+                     removeEmptyAttributes: true,
+                     removeOptionalTags: true*/
+                },
+                files: [
+                    {
+                        expand: true,
+                        cwd: "app",
+                        src: "*.html",
+                        dest: "dist"
+                    }
+                ]
+            }
+        },
+        imagemin: {
+            dist: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: "app/styles/images",
+                        src: "*.{png,jpg,jpeg}",
+                        dest: "dist/styles/images"
+                    }
+                ]
+            }
         },
         jshint: {
             options: {
@@ -100,6 +143,20 @@ module.exports = function (grunt) {
             },
             e2e: {
                 configFile: "karmaE2E.conf.js"
+            },
+            e2eCi: {
+                configFile: "karmaE2E.conf.js",
+                singleRun: true
+            }
+        },
+        less: {
+            all: {
+                options: {
+                    compile: true
+                },
+                files: {
+                    "app/styles/main.css": "app/styles/main.less"
+                }
             }
         },
         preprocess: {
@@ -117,12 +174,11 @@ module.exports = function (grunt) {
                 dest: "app/index.html"
             }
         },
-        concat: {
+        uglify: {
             dist: {
                 files: {
-                    "dist/scripts/main.js": [
-                        "app/scripts/*.js"
-                    ]
+                    "dist/scripts/libraries.min.js": ["dist/scripts/libraries.min.js"],
+                    "dist/scripts/main.min.js": ["dist/scripts/main.min.js"]
                 }
             }
         },
@@ -139,83 +195,40 @@ module.exports = function (grunt) {
                 dirs: ["dist"]
             }
         },
-        imagemin: {
-            dist: {
+        watch: {
+            server: {
                 files: [
-                    {
-                        expand: true,
-                        cwd: "app/styles/images",
-                        src: "*.{png,jpg,jpeg}",
-                        dest: "dist/styles/images"
-                    }
-                ]
-            }
-        },
-        mincss: {
-            dist: {
-                files: {
-                    "dist/styles/main.css": [
-                        "{.tmp,app}/styles/*.css"
-                    ]
-                }
-            }
-        },
-        htmlmin: {
-            dist: {
-                options: {
-                    /*removeCommentsFromCDATA: true,
-                     // https://github.com/yeoman/grunt-usemin/issues/44
-                     //collapseWhitespace: true,
-                     collapseBooleanAttributes: true,
-                     removeAttributeQuotes: true,
-                     removeRedundantAttributes: true,
-                     useShortDoctype: true,
-                     removeEmptyAttributes: true,
-                     removeOptionalTags: true*/
-                },
-                files: [
-                    {
-                        expand: true,
-                        cwd: "app",
-                        src: "*.html",
-                        dest: "dist"
-                    }
-                ]
-            }
-        },
-        cdnify: {
-            dist: {
-                html: ["dist/*.html"]
-            }
-        },
-        copy: {
-            dist: {
-                files: [
-                    {
-                        expand: true,
-                        dot: true,
-                        cwd: "app",
-                        dest: "dist",
-                        src: [
-                            "*.{ico,txt}",
-                            ".htaccess",
-                            "styles/fonts/**",
-                            "styles/images/**"
-                        ]
-                    }
-                ]
+                    "app/indexTemplate.html",
+                    "app/templates/**/*.html",
+                    "app/pages/**/*.html",
+                    "app/scripts/**/*.js",
+                    "app/styles/**/*.less",
+                    "app/styles/images/*.{png,jpg,jpeg}"
+                ],
+                tasks: ["less", "html2js:templates", "preprocess:dev", "jshint", "livereload"]
             }
         }
     });
 
+    grunt.renameTask("regarde", "watch");
+
     // template compilation
-    var TEMPLATE = "angular.module('%s').run(function($templateCache) {\n" +
+    var TEMPLATE = "angular.module('%s').run(['$templateCache', function($templateCache) {\n" +
         "  $templateCache.put('%s',\n    '%s');\n" +
-        "});\n";
+        "}]);\n";
 
     var escapeContent = function (content) {
         return content.replace(/'/g, "\\'").replace(/\r?\n/g, "\\n' +\n    '");
     };
+
+    grunt.registerTask("install", "install the frontend dependencies and karma-cucumber", function () {
+        var exec = require("child_process").exec;
+        var cb = this.async();
+        exec("bower install --dev", {}, function (err, stdout) {
+            console.log(stdout);
+            cb();
+        });
+    });
 
     grunt.registerMultiTask("html2js", "Generate js version of html template.", function () {
         /* jshint camelcase: false */
@@ -234,48 +247,56 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask("server", function (target) {
-        if (target === "dist") {
-            return grunt.task.run(["open:dist", "connect:dist:keepalive"]);
-        }
-
         var tasks = [
-            "clean:server",
             "preprocess:dev",
             "less",
             "html2js:templates",
             "jshint",
-            //waiting on issue #
-            //"livereload-start",
-            "connect:dev",
-            "open:dev"
+            "connect:dev"
         ];
 
-        if (target === "test") {
-            //start karma servers
-            tasks = tasks.concat(["karma:e2e"]);
+        if (target !== "noreload") {
+            tasks.push("livereload-start");
+        }
+
+        if (target === "dist") {
+            return grunt.task.run(["connect:dist:keepalive"]);
+        } else if (target === "testUnit") {
+            tasks.push("karma:unit");
+        } else if (target === "testE2E") {
+            tasks.push("karma:e2e");
         } else {
-            //start watch server
-            tasks.push("watch");
+            tasks.push("watch:server");
         }
 
         grunt.task.run(tasks);
     });
 
-    grunt.registerTask("ci", [
-        "clean:server",
-        "preprocess:dev",
-        "less",
-        "html2js:templates",
-        "jshint",
-        "connect:dev",
-        //run tests
-        "karma:unitCi"
-    ]);
+    grunt.registerTask("ci", function (target) {
+        var tasks = [
+            "preprocess:dev",
+            "less",
+            "html2js:templates",
+            "jshint",
+            "connect:dev"
+        ];
+
+        if (!target) {
+            tasks.push("karma:unitCi");
+            tasks.push("karma:e2eCi");
+        } else if (target === "unit") {
+            tasks.push("karma:unitCi");
+        } else if (target === "e2e") {
+            tasks.push("karma:e2eCi");
+        }
+
+        grunt.task.run(tasks);
+    });
 
     grunt.registerTask("build", [
         //run tests first
         //TODO make tests run on dist
-        "ci",
+//        "ci",
         "clean:dist",
         "preprocess:dist",
         "less",
@@ -283,12 +304,12 @@ module.exports = function (grunt) {
         "jshint",
         "useminPrepare",
         "imagemin",
-        "mincss",
+        "cssmin",
         "htmlmin",
         "concat",
-        //"uglify",
         "copy",
         "cdnify",
+        "uglify:dist",
         "usemin"
     ]);
 

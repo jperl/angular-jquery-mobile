@@ -3,6 +3,10 @@
 frameworks = ['jasmine'];
 
 files = [
+    //remove in karma 9.0
+    JASMINE,
+    JASMINE_ADAPTER,
+
     //3rd Party Code
     "app/vendor/jquery-mobile-angular-adapter-standalone.js",
     "app/components/angular-resource/angular-resource.js",

@@ -6,5 +6,5 @@ node_modules
 app/components
 app/styles/main.css
 app/index.html
-app/templates/*.js
+app/templates/generated
 dist

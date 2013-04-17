@@ -7,7 +7,6 @@ angular.module("app")
     })
     // define our fake backend
     .run(function ($httpBackend) {
-
         var todos = [
             { name: "First", completed: true },
             { name: "Second", completed: false },
