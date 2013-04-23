@@ -132,7 +132,7 @@ module.exports = function (grunt) {
         },
         karma: {
             options: {
-                browsers: ["Chrome"]  //PhantomJS will work in next karma release
+                browsers: ["Firefox"]  //PhantomJS will work in next karma release
             },
             unit: {
                 configFile: "karmaUnit.conf.js"
@@ -283,7 +283,8 @@ module.exports = function (grunt) {
 
         if (!target) {
             tasks.push("karma:unitCi");
-            tasks.push("karma:e2eCi");
+//            Does not work yet, waiting on next Karma version
+//            tasks.push("karma:e2eCi");
         } else if (target === "unit") {
             tasks.push("karma:unitCi");
         } else if (target === "e2e") {
