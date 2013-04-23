@@ -1,4 +1,6 @@
-# About
+# About 
+
+[![Build Status](https://travis-ci.org/jperl/angular-jquery-mobile.png?branch=master)](https://travis-ci.org/jperl/angular-jquery-mobile)
 
 This project shows how to use **angular** with **jquery mobile** to build structured and **tested** cross platform **HTML5** single page applications!
 
@@ -24,7 +26,7 @@ Clone `git clone git@github.com:jperl/angular-jquery-mobile.git`
 
 Install node and bower packages
 
-	sudo npm install && sudo grunt install
+	sudo npm install && sudo bower install --dev
 
 Run the server with `grunt server` and open the application [here](localhost:9000\app\index.html) (`localhost:9000\app\index.html`).
 
@@ -46,7 +48,7 @@ Acceptance / E2E tests use [cucumber](https://github.com/jperl/karma-cucumber). 
 
 #####**Until the [karma adapter](https://github.com/jperl/karma-cucumber/issues/1) is complete you can only run cucumber tests manually
 
-#####Run (unit) tests once with PhantomJS
+#####Run (unit) tests once
 `grunt ci`
 
 #####Run (unit) tests on other browsers

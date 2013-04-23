@@ -295,9 +295,7 @@ module.exports = function (grunt) {
     });
 
     grunt.registerTask("build", [
-        //run tests first
-        //TODO make tests run on dist
-//        "ci",
+        "ci",
         "clean:dist",
         "preprocess:dist",
         "less",

@@ -17,7 +17,6 @@
         "grunt-preprocess": "2.2.0",
         "grunt-regarde": "0.1.1",
         "grunt-usemin": "0.1.10",
-        "karma-cucumber": "latest",
         "matchdep": "0.1.2",
         "phantomjs": "latest"
     },

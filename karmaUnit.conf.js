@@ -1,6 +1,6 @@
 // Karma configuration
 
-frameworks = ['jasmine'];
+frameworks = ["jasmine"];
 
 files = [
     //remove in karma 9.0
