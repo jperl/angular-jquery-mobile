@@ -8,8 +8,10 @@ files = [
     JASMINE_ADAPTER,
 
     //3rd Party Code
-    "app/vendor/jquery-mobile-angular-adapter-standalone.js",
-    "app/components/angular-resource/angular-resource.js",
+    "app/components/jquery/jquery.js",
+    "app/components/jquery-mobile-angular-adapter/lib/jquery.mobile.js",
+    "app/components/angular/angular.js",
+    "app/components/jquery-mobile-angular-adapter/compiled/jquery-mobile-angular-adapter.js",
 
     //App-specific Code
     "app/scripts/app.js",
