@@ -1,25 +1,23 @@
-<div id="mainPage" data-role="page" ngm-swipeleft="setPage('aboutPage')">
+<div id="mainPage" data-role="page" ng-controller="TodoController">
     <div data-role="header">
         <h1>List of Todos</h1>
         <button id="save" ngm-vclick="save()"><i class="icon-save" style="font-size: 16px"></i></button>
-        <a ngm-vclick="setPage('aboutPage')" data-role="button">About</a>
+        <a href="#!/about">About</a>
     </div>
 
     <div data-role="content">
         <div data-role="fieldcontain">
-            <form ng-submit="add()" data-ajax="false">
-                <div class="ui-controlgroup-controls">
-                    <input id="todoInput" type="text" ng-model="$parent.inputText" placeholder="enter your todo here">
-                    <button id="addTodo" type="submit" data-icon="add">Add</button>
-                </div>
-            </form>
+            <div class="ui-controlgroup-controls">
+                <input id="todoInput" type="text" ng-model="inputText" placeholder="enter your todo here">
+                <button id="addTodo" data-icon="add" ngm-vclick="add()">Add</button>
+            </div>
         </div>
         <div data-role="controlgroup">
             <fieldset ng-repeat="todo in todos | paged:'pager':5">
                 <div todo></div>
             </fieldset>
             <div ngm-if="pager.hasMore">
-                <a href="#" ngm-vclick="pager.loadMore()" data-role="button">Load more</a>
+                <button ngm-vclick="pager.loadMore()">Load more</button>
             </div>
         </div>
     </div>

@@ -19,11 +19,10 @@
     <link rel="stylesheet" href="styles/main.css">
 </head>
 
-<body ng-controller="TodoController" ng-app="app">
+<body ng-app="app">
 
-<!-- Pages -->
-<!-- @include pages/main.html -->
-<!-- @include pages/about.html -->
+<!-- Need this blank initial view until the first remote view is loaded  -->
+<div id="initial" data-role="page"></div>
 
 <!-- build:js scripts/main.min.js -->
 <script src="scripts/app.js"></script>
