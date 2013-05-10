@@ -28,7 +28,7 @@ Install node and bower packages
 
 	sudo npm install && sudo bower install --dev
 
-Run the server with `grunt server` and open the application [here](localhost:9000\app\index.html) (`localhost:9000\app\index.html`).
+Run the server with `grunt server` and open the application [here](http://localhost:9000/app/index.html) (`localhost:9000/app/index.html`).
 
 # Testing
 
@@ -73,7 +73,7 @@ Point as many browsers that you want to test (mobile devices, other computers) t
 
 `grunt build`
 
-Serve it `grunt server:dist` and open it [here](localhost:9000\dist\index.html) (`localhost:9000\dist\index.html`)
+Serve it `grunt server` and open it [here](http://localhost:9000/dist/index.html) (`localhost:9000/dist/index.html`)
 
 # License
 
