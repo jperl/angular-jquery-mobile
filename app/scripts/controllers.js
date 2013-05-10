@@ -29,13 +29,10 @@ angular.module("app")
                 $scope.todos = newTodos;
                 todoStorage.put($scope.todos);
             };
-
-            //navigation
-            $scope.back = function () {
-                $location.goBack();
-            };
-
-            $scope.setPage = function (page) {
-                $location.url("#" + page);
+        }])
+    .controller("PageController", ["$scope", "$location",
+        function ($scope, $location) {
+            $scope.setPage = function (url) {
+                $location.url(url);
             };
         }]);
